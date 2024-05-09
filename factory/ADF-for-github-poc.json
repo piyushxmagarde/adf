@@ -1,0 +1,9 @@
+{
+	"name": "ADF-for-github-poc",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "797e7d4f-1330-45fe-a1af-c92ca158789a",
+		"tenantId": "f8300747-02c3-470c-a3d6-5a3355e3d77d"
+	}
+}
