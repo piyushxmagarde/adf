@@ -27,23 +27,51 @@
 							"userProperties": [],
 							"typeProperties": {
 								"method": "POST",
-								"url": "https://claires--omsdev.sandbox.my.salesforce.com/services/data/v51.0/composite?page=1&limit=100"
+								"headers": {
+									"Authorization": "Bearer 00D1D000000LTXK!AQwAQARrDQ0fDuBeajzi1ezQUaZbXQ8VypnUAWWfJILiklbWN6zCzvQGxFnn8fwriDm_a._n7I9dcpEUTrGqi54xSVJjNYRb"
+								},
+								"url": "https://claires--omsdev.sandbox.my.salesforce.com/services/data/v51.0/composite?page=1&limit=100",
+								"body": {
+									"value": "@pipeline().parameters.body",
+									"type": "Expression"
+								}
 							}
 						},
 						{
 							"name": "Set variable1",
 							"type": "SetVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Web1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "count",
+								"value": {
+									"value": "@activity('Web1').output.compositeResponse.body.totalSize",
+									"type": "Expression"
+								}
+							}
 						},
 						{
 							"name": "Copy data1",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Web1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -53,14 +81,66 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
 								"enableStaging": false
-							}
+							},
+							"inputs": [
+								{
+									"referenceName": "Json2",
+									"type": "DatasetReference"
+								}
+							]
 						}
 					],
 					"timeout": "0.12:00:00"
 				}
 			}
 		],
+		"parameters": {
+			"body": {
+				"type": "string",
+				"defaultValue": {
+					"allOrNone": false,
+					"compositeRequest": [
+						{
+							"method": "GET",
+							"url": "/services/data/v51.0/query/?q=SELECT Id, OrderSummary.Id, OrderSummary.OrderNumber, OrderSummary.Account.Name, OrderSummary.OrderedDate, Account.Salutation, Account.PersonTitle, Account.FirstName, Account.LastName, Account.PersonAssistantPhone, Account.PersonHomePhone, Account.PersonOtherPhone, Account.Phone , OrderSummary.SFCC_Customer_Number__c, OrderSummary.BillingStreet, OrderSummary.BillingCity, OrderSummary.BillingState, OrderSummary.BillingPostalCode, OrderSummary.BillingCountry, OrderSummary.BillingEmailAddress, OrderSummary.BillingPhoneNumber, OrderSummary.TotalTaxAmount, OrderSummary.GrandTotalAmount, OrderSummary.SalesChannel.SalesChannelName, FulfillmentOrderNumber, CurrencyIsoCode, GrandTotalAmount, TotalTaxAmount, DeliveryMethod.Name, FulfilledFromLocation.Name, FulfilledToName, FulfilledToStreet, FulfilledToCity, FulfilledToSTate, FulfilledToPostalCode, FulfilledToCountry, FulfilledToEmailAddress, FulfilledToPhone, (SELECT Id, OrderItemSummary.ProductCode, OrderItemSummary.styleNumber__c, OrderItemSummary.SKU_Code__c, OrderItemSummary.taxRate__c,  OrderItemSummary.LineNumber, Description, Quantity, UnitPrice, TotalTaxAmount, TotalLineAmount, TotalAdjustmentAmount, TotalAmount, Type FROM FulfillmentOrderLineItems) FROM FulfillmentOrder limit 100",
+							"referenceId": "refFO1"
+						},
+						{
+							"method": "GET",
+							"url": "@{refFO1.nextRecordsUrl}",
+							"referenceId": "refFO2"
+						},
+						{
+							"method": "GET",
+							"url": "@{refFO2.nextRecordsUrl}",
+							"referenceId": "refFO3"
+						},
+						{
+							"method": "GET",
+							"url": "@{refFO3.nextRecordsUrl}",
+							"referenceId": "refFO4"
+						},
+						{
+							"method": "GET",
+							"url": "@{refFO4.nextRecordsUrl}",
+							"referenceId": "refFO5"
+						}
+					]
+				}
+			}
+		},
 		"variables": {
 			"count": {
 				"type": "Integer",
