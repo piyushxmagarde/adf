@@ -3,106 +3,27 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Until1",
-				"type": "Until",
+				"name": "Azure Function1",
+				"type": "AzureFunctionActivity",
 				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"expression": {
-						"value": "@less(variables('count'), 100)",
-						"type": "Expression"
+					"functionName": "adfTrigger",
+					"body": {
+						"name": "Azure"
 					},
-					"activities": [
-						{
-							"name": "Web1",
-							"type": "WebActivity",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"method": "POST",
-								"headers": {
-									"Authorization": "Bearer 00D1D000000LTXK!AQwAQARrDQ0fDuBeajzi1ezQUaZbXQ8VypnUAWWfJILiklbWN6zCzvQGxFnn8fwriDm_a._n7I9dcpEUTrGqi54xSVJjNYRb"
-								},
-								"url": "https://claires--omsdev.sandbox.my.salesforce.com/services/data/v51.0/composite?page=1&limit=100",
-								"body": {
-									"value": "@pipeline().parameters.body",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "Set variable1",
-							"type": "SetVariable",
-							"dependsOn": [
-								{
-									"activity": "Web1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "count",
-								"value": {
-									"value": "@activity('Web1').output.compositeResponse.body.totalSize",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "Copy data1",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "Web1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "JsonSource",
-									"storeSettings": {
-										"type": "AzureBlobStorageReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "JsonReadSettings"
-									}
-								},
-								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "Json2",
-									"type": "DatasetReference"
-								}
-							]
-						}
-					],
-					"timeout": "0.12:00:00"
+					"method": "POST"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureFunction",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
