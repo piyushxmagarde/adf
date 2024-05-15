@@ -1,57 +1,72 @@
 {
-	"name": "sample",
+	"name": "Piyush",
 	"properties": {
 		"activities": [
 			{
-				"name": "csv_to_json",
-				"type": "Copy",
+				"name": "Until1",
+				"type": "Until",
 				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
+					"expression": {
+						"value": "@less(variables('count'), 100)",
+						"type": "Expression"
 					},
-					"sink": {
-						"type": "JsonSink",
-						"storeSettings": {
-							"type": "AzureBlobStorageWriteSettings",
-							"copyBehavior": "PreserveHierarchy"
+					"activities": [
+						{
+							"name": "Web1",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://claires--omsdev.sandbox.my.salesforce.com/services/data/v51.0/composite?page=1&limit=100"
+							}
 						},
-						"formatSettings": {
-							"type": "JsonWriteSettings"
+						{
+							"name": "Set variable1",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": []
+						},
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"enableStaging": false
+							}
 						}
-					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "input_csv",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "Json1",
-						"type": "DatasetReference"
-					}
-				]
+					],
+					"timeout": "0.12:00:00"
+				}
 			}
 		],
+		"variables": {
+			"count": {
+				"type": "Integer",
+				"defaultValue": 100
+			}
+		},
 		"annotations": [],
 		"lastPublishTime": "2024-05-09T05:28:49Z"
 	},
